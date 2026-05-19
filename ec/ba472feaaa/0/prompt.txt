@@ -102,3 +102,7 @@ not just that, look at this bro ``` Status:           ✘ failed
   ↑/↓ to navigate · Enter to select · Esc to back
 
 ``` this is inside the cladue code mcp enable and authenticate dialog
+
+---
+
+ok man commit and push turbho
