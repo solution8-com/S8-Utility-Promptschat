@@ -1,0 +1,57 @@
+{
+  "cli_version": "0.6.3",
+  "checkpoint_id": "2fa989faaa05",
+  "session_id": "cceaff0b-4757-418f-bf28-fdfb509cca81",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-03T18:15:04.201352Z",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs/superpowers/specs/2026-06-02-promptbar-phase1-collections-marketplace-design.md"
+  ],
+  "agent": "Claude Code",
+  "model": "",
+  "turn_id": "ef558edab373",
+  "token_usage": {
+    "input_tokens": 253,
+    "cache_creation_tokens": 1135286,
+    "cache_read_tokens": 6711770,
+    "output_tokens": 64525,
+    "api_call_count": 88
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-03T18:15:04.169617Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 5,
+    "total_committed": 0,
+    "total_lines_changed": 10,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 812,
+      "user_lines_removed": 5,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude-mcp-config.json": 22,
+        ".claude/settings.json": 6,
+        ".claude/settings.local.json": 46,
+        ".mcp.json": 12,
+        "docs/adr/.adr/cache/constraints_accepted.json": 12,
+        "docs/adr/.adr/cache/contract_cache.json": 7,
+        "docs/adr/.adr/policy.json": 132,
+        "docs/adr/adr-index.json": 11,
+        "docs/superpowers/specs/2026-06-02-promptbar-phase1-collections-marketplace-design.md": 564
+      },
+      "user_removed_per_file": {
+        ".claude/settings.json": 5
+      }
+    }
+  ]
+}

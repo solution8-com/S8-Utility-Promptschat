@@ -1,0 +1,288 @@
+/buddy stats
+
+---
+
+/superpowers:brainstorming I have the following feature expansion target from management. I need you to collab with me to deliver this today. Our goal is to write a spec so that we caninvoke /superpowers:writing-plans afterward. Make sure for this session that progressing into implementation is gatekeps through the BAZINGA keyword. Furthermore, ensure that cavecrew will be used for implemtnation.
+
+Let's begin
+
+---
+
+Oh shit, sorry, i omitted that bro
+
+```IRstack-Promptbar becomes a Git-native team distribution platform for both Skills and Plugin Marketplaces, where users can:
+
+discover/render skills and plugins in-platform,
+upload/download/install skills (.skill) and plugins,
+sync changes bidirectionally (pull/push semantics),
+onboard via profile-guided MCP setup,
+run set_me_up to bootstrap CLI marketplace connectivity using gh auth where possible (with explicit fallbacks when not).
+MECE Unified Spec (semantic merge)
+A) Product Surfaces (what exists as user-facing modules)
+A1. Skill Registry Surface
+existing skill CRUD + file operations
+.skill upload/download
+render multi-file skills in UI
+MCP tools for skill lifecycle
+A2. Marketplace Registry Surface (new)
+host one/many git-backed plugin marketplaces
+index/list plugins
+install plugin one/all
+keep marketplace synced to source repo(s)
+A3. Team Onboarding Surface (new)
+profile page shows MCP connection instructions
+org-member-gated setup flow
+set_me_up guided bootstrap from MCP side
+B) Core Domain Model (shared data backbone)
+B1. Existing Skill model remains canonical
+Keep current serialized multi-file content (SKILL.md + attached files) as runtime canonical representation.
+
+B2. Add Sync/Remote abstractions (shared for skills + marketplaces)
+RemoteSource (provider, url, key, default branch)
+SyncState (last pulled/pushed, local/upstream revisions, status)
+Revision snapshots (audit + rollback)
+apply to:
+skills (individual artifacts)
+marketplaces (index repos)
+B3. Add Marketplace entities
+Marketplace (name, slug, owner/repo, visibility, policy)
+MarketplacePlugin (plugin id, version, manifest fields, status)
+MarketplaceBundle (optional “install all curated set” grouping)
+C) Artifact Contracts & Packaging
+C1. Skills contract
+maintain current skill multi-file handling
+formalize .skill package contract with manifest (skill.nd.json) for deterministic import/export
+keep backward compatibility for current download endpoint
+C2. Marketplace contract
+align to evolving marketplace patterns (git repo + marketplace manifest/index + per-plugin manifests)
+validate schema, plugin IDs, versions, and integrity on refresh
+C3. Shared integrity model
+deterministic file ordering
+content hashing for drift detection/conflict handling
+normalized path validation and package limits
+D) Sync Engine (GitHub-like behavior)
+D1. Skills sync (new, beyond current CRUD)
+pull upstream skill changes
+push local edits upstream
+status: in_sync, ahead, behind, diverged, conflict, error
+conflict resolution workflow (file-level diff + manual resolution)
+D2. Marketplace sync
+fetch/refresh marketplace index from repo
+detect plugin adds/updates/removals
+surface sync health in admin + user views
+D3. Operation semantics
+idempotent operations
+retry-safe transitions
+durable operation logs
+E) MCP API Surface (full merged scope)
+E1. Keep existing skill MCP tools
+save_skill
+add_file_to_skill
+update_skill_file
+remove_file_from_skill
+get_skill
+search_skills
+plus comment flow already present
+E2. Add skill sync MCP tools
+pull_skill
+push_skill
+get_skill_sync_status
+resolve_skill_conflict
+optional: connect_skill_remote
+E3. Add marketplace onboarding/install MCP tools
+set_me_up (centerpiece)
+get_marketplaces
+get_marketplace_plugins
+install_marketplace_plugin
+install_marketplace_bundle / install_all_marketplace_plugins
+diagnose_marketplace_auth
+refresh_marketplace_index (admin/maintainer)
+F) set_me_up — mandatory lifecycle (your added story)
+F1. Preconditions from Promptbar profile page
+User sees:
+
+MCP endpoint and install instructions
+required prerequisites (gh, CLI agent tooling)
+org-member-gated setup steps
+F2. set_me_up execution phases
+detect CLI environment
+verify gh installed
+verify gh auth status
+verify GitHub identity + org membership (solution8-com)
+verify marketplace repo reachability (git ls-remote / provider API)
+install/write marketplace configuration in agent runtime
+verify install success
+return actionable next steps (install one/all plugins)
+F3. Outputs
+machine-readable status object
+pass/fail checks
+remediation instructions per failure reason
+idempotent success on rerun
+G) Auth & Security (explicit loophole handling)
+You asked to flag uncertainty if gh auth inheritance is not standard.
+Flag confirmed: auth inheritance is not universally guaranteed across runtimes.
+
+G1. Required mitigation
+set_me_up must not assume inheritance; it must test and branch.
+
+G2. Fallback auth hierarchy
+gh-based git auth (preferred)
+git credential helper explicit setup
+PAT/token setup (scoped minimally; org policy compliant)
+read-only deploy token/service credential for marketplace read (if org permits)
+G3. Policy controls
+marketplace repo allowlist
+org membership checks
+role-based access for push/publish operations
+audit trail for setup/install/push/pull actions
+H) Web UX Merge (skills + marketplaces + onboarding)
+H1. Profile
+MCP connection block
+set_me_up command block
+auth diagnostics quick checks
+troubleshooting
+H2. Skills pages
+existing editor/viewer/diff retained
+add sync badge/actions (pull/push/resolve)
+show remote provenance
+H3. Marketplace pages
+list marketplaces/plugins
+per-plugin install
+install all/bundle
+version and trust/policy badges
+H4. Admin controls
+connect marketplace repos
+refresh index
+enforce policy
+monitor sync health/errors
+I) API/Route Merge (platform backend)
+I1. Skills routes
+preserve existing download/render routes
+add upload route for .skill
+add sync routes for pull/push/status/conflict resolution
+I2. Marketplace routes
+list marketplaces/plugins
+refresh/sync marketplace
+install command generation endpoints
+diagnostics endpoints
+I3. Backward compatibility
+No breaking changes to existing skill read/download/edit paths.
+
+J) Testing Matrix (complete merged coverage)
+J1. Skills
+parse/serialize round trips
+upload/download package fidelity
+MCP create/update on uploaded skills
+sync status transitions + conflict paths
+J2. Marketplace
+index schema validation
+repo fetch/refresh correctness
+plugin install one/all command generation
+stale index handling
+J3. Onboarding (set_me_up)
+gh missing
+gh unauthenticated
+org membership failure
+repo inaccessible
+inheritance fail + fallback success
+idempotent rerun
+J4. End-to-end
+New member flow: Promptbar login → profile instructions → MCP install → set_me_up → marketplace connected → install plugin(s) → run plugin successfully.
+
+K) Rollout Plan (merged and non-disruptive)
+Phase 1
+profile onboarding UX
+set_me_up + diagnostics
+marketplace read/index/list/install commands
+keep skills as-is
+Phase 2
+.skill upload hardening + manifest standardization
+skill sync status model + pull (read-first)
+Phase 3
+skill push + conflict resolution
+marketplace admin/policy/observability
+Phase 4
+enterprise hardening: signatures, attestations, strict policy gates
+L) Non-negotiable risks and mitigations (merged)
+Auth inheritance drift
+Mitigation: preflight + explicit fallback chain in set_me_up.
+
+Ecosystem marketplace spec differences
+Mitigation: adapter layer per runtime/client; internal canonical model.
+
+Private repo/org access edge cases (SSO, token scopes)
+Mitigation: diagnostics + policy-driven credential modes.
+
+Conflict complexity in push/pull
+Mitigation: start with block-on-diverge, then add guided merge UI.
+
+M) Acceptance Criteria (joined across both asks)
+You are done when all are true:
+
+User logs into Promptbar via GitHub and is verified as org member.
+Profile provides MCP + onboarding instructions.
+MCP set_me_up configures marketplace connectivity with verified auth path.
+User can install marketplace plugins one-by-one or all-at-once.
+Skills can be uploaded/downloaded/rendered reliably as packages.
+MCP can create/update uploaded skills.
+Skills support pull/push sync semantics with status and conflict handling.
+System explicitly handles non-inheritable gh auth via fallbacks.
+Admins can manage marketplace repos/policies/refreshes.
+Full audit + telemetry exists for setup/sync/install operations.
+```
+
+---
+
+We do not want the marketplace to be a repo on github, it should live inside the promptbar scope on our server bro. Reassess.
+
+---
+
+/find-skills
+
+---
+
+/find-skills that enable deep-researchcapabilities. scour web, propose most popular ones e.g. from learn-skills.dev or officialskils.sh
+
+---
+
+These No. I said please. Use the freshly installed deep research skill to send a subagent with the task to form An M E C E complete. Security hardened understanding. of the marketplace as standard in CLI agents. Only this kind of information will make you understand how your completely nonsensical.
+
+---
+
+Pplease. Use the freshly installed deep research skill to send a subagent with the task to form An M E C E complete. Security hardened understanding. of the marketplace as standard in CLI agents. Only this kind of information will make you understand how your completely nonsensical.
+
+---
+
+Please use the pieces MCP to record the mmory of this confirmation of key findings to be used for later when exporting institutional memoery into our new db driven backend for agenetic memoeries. After that we will get to your next quesiton
+
+---
+
+Approach C is preferred. CLaude code primary, others via agent skills etc. just make sure that there is some sort of compat check when things like kilo code, crush cli, gemini cli, githubcopilot cli, codex cli run that ok
+
+---
+
+in phase 1, only user `le-dawg` (github username, creator of solutino8-com org) can create. Each plugin set will have some sort of approval backlog with modifications. There is no UI planned for this yet, but there should be. Record this is as a blocking backlog item before we even get to writing-plans.
+
+---
+
+sicne running the mcp command already happens inside a session, the design goal is to make sure it becomes active in that session.since `reload-plugins ` exists as a slash command, therefore we can assume that is possible. therefore, thecomplete installation steps should be completed for claude code. for the compatibility with other agent clis, use approach b , config injection, make sure config injection only used for everything that i s not claude code.
+
+---
+
+there already is the mcp connection block you stupid fuck. use deepwiki mcp to figure this shit our man. here is the offocial deepwiki repo url: https://deepwiki.com/solution8-com/AIR-GEvo-Regent-UI-azure
+
+---
+
+use A primarily, then B as fallback
+
+---
+
+keck
+
+---
+
+please recap and tell me what needs to be decided now
+
+---
+
+ga .
