@@ -1,0 +1,446 @@
+<task-notification>
+<task-id>bj13cutlo</task-id>
+<tool-use-id>0164cf2a-89f7-4389-adf0-894f978bfb36:inner</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-thedawgctor-Desktop--dawg-workfolder-AIRtools-s8promptbar-S8-Utility-Promptschat/d9d0ccd2-39fe-4331-9431-7e206a4ede6b/tasks/bj13cutlo.output</output-file>
+<status>completed</status>
+<summary>Background command "gcm " hook fix + test changes (4 files)"" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+let's revbiew   docs/superpowers/specs/2026-06-02-promptbar-phase1-collections-marketplace-design.md
+
+---
+
+pls check againt the 868 commits that our repo is behind upstream https://github.com/solution8-com/AIRstack-Promptbar/compare/main...f%3Aprompts.chat%3Amain
+
+ do this in subagent. use gh profusely if neede.d
+
+---
+
+<task-notification>
+<task-id>a2f6cf800c0c97623</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-thedawgctor-Desktop--dawg-workfolder-AIRtools-s8promptbar-S8-Utility-Promptschat/d9d0ccd2-39fe-4331-9431-7e206a4ede6b/tasks/a2f6cf800c0c97623.output</output-file>
+<status>completed</status>
+<summary>Agent "Upstream commit delta analysis vs spec" completed</summary>
+<result>I have enough information to write the full analysis. Let me compile it now.
+
+---
+
+## Upstream Analysis: solution8-com/AIRstack-Promptbar vs f/prompts.chat:main
+
+### Divergence Summary
+
+The fork is **868 commits behind** and **334 commits ahead** of upstream (`f/prompts.chat:main`), status `diverged`. The GitHub compare API returns 250 commits per page (the maximum displayable), so the 868 figure comes from the `ahead_by` field. The fork's HEAD is `8607d399`.
+
+The 250 commits surfaced in the compare are dominated by `Add prompt:` / `Update prompt:` content commits (~230+). The genuine feature/fix commits from upstream are:
+
+- `fix: avoid GitHub links for email contributors (#1167)`
+- `feat(auth): add generic OIDC and OAuth 2.0 plugins (#1056)` — full plugin-based auth system in `src/lib/plugins/auth/`
+- `feat(auth): honour AUTH_OIDC/OAUTH_NAME and _LOGO env vars in login button (#1177)`
+- `fix(ci): unblock CI lint by allowing any in OIDC/OAuth test files`
+- `chore: remove entire.io hooks and cached session data` — removed secret-leaking Claude Code hooks
+- `feat(about): add John Phamous, add Security section with Mehmet Ince`
+- `docs: clarify interactive book license scope (#1175)`
+- `Fix dark mode favicon (#1183)`
+- `chore: make compose.yml support both pre-built images or building locally (#1184)`
+- `Add Neon as sponsor and recommended database (#1192)`
+- `fix: add VS Code Copilot Chat deep links (#1198)`
+
+The overwhelming majority of the 868 commits are prompt content updates (add/update operations on user-submitted prompts) and their associated bulk-update sweeps.
+
+---
+
+## Upstream File Tree Delta
+
+**New files in upstream that do NOT exist in the fork**, organized by area:
+
+### Plugin/Marketplace Infrastructure (net-new)
+- `.claude-plugin/` + `.claude-plugin/marketplace.json`
+- `CLAUDE-PLUGIN.md`
+- `plugins/claude/prompts.chat/` (entire directory tree including `.claude-plugin/plugin.json`, `.mcp.json`, `agents/`, `commands/`, `skills/`)
+- `.windsurf/skills/book-translation/SKILL.md`
+- `.windsurf/skills/widget-generator/SKILL.md`
+
+### MCP Enhancements (upstream has, fork does not)
+- `src/components/mcp/mcp-config-tabs.tsx`
+- `src/components/mcp/mcp-server-popup.tsx`
+- `public/mcp.svg`, `public/mcp-dark.svg`
+
+### Skills System (upstream has, fork does not)
+- `src/app/skills/page.tsx` — browsable skills marketplace page
+- `src/app/.well-known/skills/` — skills discovery endpoint (serves `index.json` and zip downloads)
+- `src/app/.well-known/skills/[...path]/route.ts`
+- `src/app/.well-known/skills/index.json/route.ts`
+- `src/app/api/prompts/[id]/skill/route.ts` — download a skill as `.skill` zip
+- `src/components/prompts/skill-diff-viewer.tsx`
+- `src/components/prompts/skill-editor.tsx`
+- `src/components/prompts/skill-viewer.tsx`
+- `src/lib/skill-files.ts` — parse/serialize skill file bundles
+- `scripts/seed-skills.ts`
+
+### Collection (upstream has a different/older implementation)
+- `src/app/collection/page.tsx` — personal bookmarks page
+- `src/app/collection/loading.tsx`
+- `src/app/api/collection/route.ts` — GET/POST/DELETE personal bookmarks
+- `src/components/prompts/add-to-collection-button.tsx`
+
+### Auth Plugins (upstream, potentially missing from fork)
+- `src/lib/plugins/auth/oauth.ts`
+- `src/lib/plugins/auth/oidc.ts`
+- `src/__tests__/lib/plugins/auth/oauth.test.ts`
+- `src/__tests__/lib/plugins/auth/oidc.test.ts`
+- `src/__tests__/lib/skill-files.test.ts`
+- `src/__tests__/api/collection.test.ts`
+- `src/__tests__/api/mcp-handler.test.ts`
+
+### Tests
+- `src/__tests__/api/collection.test.ts`
+- `src/__tests__/api/mcp-handler.test.ts`
+
+### New Widgets
+- `src/lib/plugins/widgets/coderabbit.ts`
+- `src/lib/plugins/widgets/commandcode.ts`
+- `src/lib/plugins/widgets/textream.tsx`
+
+### Fork-Only Migrations (NOT in upstream)
+The fork has **two extra migrations** beyond the common base that upstream does not have:
+- `20260407180000_add_guide_prompt_type` — adds `GUIDE` to `PromptType`
+- `20260415000000_add_example_content` — makes `user_prompt_examples.mediaUrl` nullable, adds `content TEXT`
+
+---
+
+## Schema Conflicts
+
+### Critical Name Collision: `Collection` model
+
+**Upstream `Collection` (simple bookmarks table):**
+```
+model Collection {
+  userId    String
+  promptId  String
+  createdAt DateTime
+  @@id([userId, promptId])
+  @@map("collections")
+}
+```
+
+**Phase 1 spec `Collection` (full collections-as-entities):**
+```
+model Collection {
+  id          String @id @default(cuid())
+  slug        String
+  name        String
+  description String?
+  visibility  CollectionVisibility
+  ownerId     String
+  items       CollectionItem[]
+  members     CollectionMember[]
+  @@unique([ownerId, slug])
+  @@map("collections")
+}
+```
+
+**This is a direct, destructive name collision.** Both map to the `collections` table. Upstream has already shipped this model, with a migration at `20260104210000_add_collections`, and the fork already has it too (they are in sync on this migration). The Phase 1 spec proposes **replacing** the existing flat `collections` table with an entirely different schema: named, visibility-controlled, multi-item collections. This requires dropping the current `collections` table and re-creating it with a different structure.
+
+The fork's current `Collection` model (which matches upstream) is used in:
+- `src/app/collection/page.tsx`
+- `src/app/api/collection/route.ts`
+- `src/components/prompts/add-to-collection-button.tsx`
+
+All of these will break when the table is replaced.
+
+### PromptType enum divergence
+
+| Value | Fork | Upstream |
+|-------|------|----------|
+| TEXT  | yes  | yes      |
+| IMAGE | yes  | yes      |
+| VIDEO | yes  | yes      |
+| AUDIO | yes  | yes      |
+| STRUCTURED | yes | yes  |
+| SKILL | yes  | yes      |
+| TASTE | yes  | yes      |
+| HACK  | yes (fork-only) | no |
+| GUIDE | yes (fork-only) | no |
+
+The fork has `HACK` and `GUIDE` types that do not exist in upstream. Upstream has no corresponding migrations for these.
+
+### Upstream `UserPromptExample` vs fork
+
+Upstream `UserPromptExample` has `mediaUrl String` (NOT NULL). The fork has already applied the `add_example_content` migration that makes it nullable and adds `content TEXT`. This means the fork's schema is **ahead of upstream** on this model — not a conflict per se, but it means a straight merge of upstream's schema file will revert the fork's changes.
+
+### Phase 1 proposed models not yet in either codebase
+
+None of these exist in upstream or fork:
+- `CollectionItem`
+- `CollectionMember`
+- `AgentConfig`
+- `AuditLog`
+
+### Phase 1 proposed enums not in either codebase
+
+None exist in upstream or fork:
+- `CollectionVisibility`
+- `ItemSourceType`
+- `ItemType`
+- `SyncStatus`
+- `AgentTier`
+
+---
+
+## API Route Conflicts
+
+**Upstream already has `/api/collection/route.ts`** — this is the flat bookmarks GET/POST/DELETE. The Phase 1 spec introduces `src/app/api/collections/` (plural) as the new namespace, which is a different path and avoids direct collision. However:
+
+- The existing `/api/collection/` (singular) serves the current bookmarks-style collection. If Phase 1 replaces the `collections` DB table, this endpoint breaks.
+- Phase 1's routes under `src/app/api/collections/[username]/[slug]/marketplace.json/route.ts` are net-new — no collision.
+
+**Full upstream API surface for relevant routes:**
+- `src/app/api/collection/route.ts` (flat bookmarks — CONFLICTS with Phase 1 data model)
+- `src/app/api/prompts/[id]/skill/route.ts` (skill zip download — Phase 1 depends on this, it's already there)
+- `src/pages/api/mcp.ts` (MCP handler — Phase 1 extends this with new tools)
+- `src/app/api/user/api-key/route.ts` (API key management — MCP auth prerequisite)
+
+No upstream routes exist yet at:
+- `/api/collections/` (plural) — Phase 1 creates this
+- `/api/collections/[username]/[slug]/marketplace.json` — Phase 1 creates this
+
+---
+
+## MCP Changes
+
+Upstream has a **substantially expanded MCP implementation** at `src/pages/api/mcp.ts` compared to what the fork likely has. Key features already in upstream MCP:
+
+1. **In-memory API key auth cache** (5-min TTL via `authCache` Map)
+2. **Rate limiting** — 4 rate limiters: `mcpGeneralLimiter`, `mcpToolCallLimiter`, `mcpWriteToolLimiter`, `mcpAiToolLimiter`
+3. **Skill file parsing** — `parseSkillFiles`, `serializeSkillFiles`, `sanitizeFilename` from `src/lib/skill-files.ts`
+4. **Prompt variable extraction** — `extractVariables` supporting `${varName:default}` syntax
+5. **`mcpPromptsPublicByDefault`** user setting
+6. **StreamableHTTPServerTransport** (not SSE)
+7. **ElicitResultSchema** support for interactive MCP elicitation
+
+The fork already has a working MCP endpoint but the upstream version includes skill management tools. The Phase 1 spec adds `set_me_up`, collection MCP tools, and `get_collection`/`install_collection` MCP tools — these are net-new on top of what upstream has.
+
+**Important:** The fork's `src/pages/api/mcp.ts` was the subject of recent fork-only commits (`fix: exempt /api/mcp from session middleware`, `fix: admin approve/reject visibility + env-driven MCP branding`). These changes likely diverge from upstream's MCP file and will require manual merge resolution.
+
+---
+
+## Feature Overlap
+
+The following upstream features **partially implement** what Phase 1 is building:
+
+| Phase 1 Feature | Upstream Overlap | Gap |
+|---|---|---|
+| User collections | Flat `Collection` (userId+promptId bookmarks) | No name/slug/visibility/sharing/items structure |
+| Skills marketplace | `src/app/skills/page.tsx` + `/api/prompts/[id]/skill` zip download | No `marketplace.json` serving, no install commands |
+| `.well-known/skills` | `GET /.well-known/skills/index.json` serves static JSON | No dynamic per-user or per-collection variant |
+| Plugin registry | `.claude-plugin/marketplace.json` (static file) | No `AgentConfig` table, not admin-updatable via MCP |
+| MCP skill tools | Upstream MCP has prompt/skill read tools | No collection create/list/install tools, no `set_me_up` |
+| Agent onboarding | n/a | No `set_me_up` or agent detection logic |
+
+---
+
+## Commit Categories
+
+Of the 868 upstream commits:
+
+- **~820 (~94%)**: Prompt content operations — `Add prompt:`, `Update prompt:` CRUD pushed by automated/community pipeline. These carry zero schema or code changes.
+- **~10 (~1%)**: Feature commits — new auth plugins (OIDC/OAuth), Copilot Chat deep links, skills system, collections, MCP expansion, plugin registry. Most of these are already captured in the fork because the fork diverged *after* these landed.
+- **~20 (~2%)**: Fix commits — contributor link fixes, CI unblocking, dark mode favicon, compose.yml
+- **~18 (~2%)**: Chore/docs — Neon sponsorship, license clarification, entire.io hook removal, locale additions
+
+The compare API's 250-commit display limit means only the most recent 250 of the 868 are visible, and those skew toward prompt-only commits. The meaningful infrastructure commits (skills, collections, MCP, plugins) were likely merged into upstream earlier in the 868-commit window and may already be present in the fork at or near its divergence point.
+
+---
+
+## Recommended Actions Before Implementing Phase 1
+
+### 1. Resolve the `Collection` model collision — BLOCKING
+
+The `collections` table mapping is already live in both fork and upstream as a flat userId+promptId bookmarks table. Phase 1's schema completely replaces it. Required steps:
+- Rename the existing `Collection` model to `Bookmark` (or `SavedPrompt`) in both schema and code
+- Create a new Prisma migration: `ALTER TABLE "collections" RENAME TO "bookmarks"`
+- Update all references: `src/app/collection/page.tsx`, `src/app/api/collection/route.ts`, `add-to-collection-button.tsx`
+- Then add the Phase 1 `Collection` model and its `CollectionItem`/`CollectionMember` tables
+
+### 2. Merge upstream MCP changes — HIGH PRIORITY
+
+The fork's `/api/mcp` has diverged from upstream (fork has env-driven branding, session middleware exemption). Upstream has rate limiters and skill file tools. A manual three-way merge is needed before adding Phase 1 MCP tools, otherwise Phase 1 adds on top of an incomplete base.
+
+### 3. Pull upstream skill infrastructure — HIGH PRIORITY
+
+The fork is missing:
+- `src/lib/skill-files.ts` (skill zip parsing/serialization — Phase 1 depends on this for INTERNAL item downloads)
+- `src/app/.well-known/skills/` routes (Phase 1 extends this concept for collections)
+- `src/app/skills/page.tsx`
+
+These should be cherry-picked or rebased in before Phase 1 implementation starts.
+
+### 4. Pull upstream auth plugin system — MEDIUM
+
+`src/lib/plugins/auth/oauth.ts` and `oidc.ts` are in upstream but likely not in fork. These are not directly required by Phase 1 but represent significant divergence that will cause merge conflicts later.
+
+### 5. Handle fork-only enum values — LOW RISK but must track
+
+Fork has `HACK` and `GUIDE` in `PromptType` (upstream does not). When rebasing, keep these — they are additive and backward-compatible. Do not let an upstream schema overwrite them.
+
+### 6. No upstream conflicts on Phase 1's new route namespace (`/api/collections/`)
+
+The plural namespace is safe to create. The only collision is the singular `/api/collection/` route which must be either migrated or removed as part of the `Bookmark` rename above.
+
+### 7. The `plugins/claude/prompts.chat/` plugin registry
+
+Upstream already has a static `marketplace.json` at `.claude-plugin/marketplace.json` and `plugins/claude/prompts.chat/skills/index.json`. Phase 1 wants to make this dynamic and DB-backed via `AgentConfig`. The static files can coexist initially; Phase 1's dynamic routes will eventually supersede them.
+
+&lt;!-- buddy: *narrows eyes at the Collection table name collision* this is the kind of architectural landmine that burns villages --&gt;</result>
+<usage><subagent_tokens>66788</subagent_tokens><tool_uses>14</tool_uses><duration_ms>261274</duration_ms></usage>
+</task-notification>
+
+---
+
+patch the spec, then delgate rebview of scpec to /codex with full context
+
+---
+
+<task-notification>
+<task-id>bt3sopxjd</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-thedawgctor-Desktop--dawg-workfolder-AIRtools-s8promptbar-S8-Utility-Promptschat/d9d0ccd2-39fe-4331-9431-7e206a4ede6b/tasks/bt3sopxjd.output</output-file>
+<status>completed</status>
+<summary>Background command "codex exec --skip-git-repo-check -m gpt-5.4 --config model_reasoning_effort="xhigh" --sandbox read-only -C "/Users/thedawgctor/Desktop/(dawg-workfolder)AIRtools/s8promptbar/S8-Utility-Promptschat" "You are reviewing a Phase 1 implementation spec. Read the full spec at: docs/superpowers/specs/2026-06-02-promptbar-phase1-collections-marketplace-design.md
+
+Then read these key existing files for context:
+- prisma/schema.prisma
+- src/pages/api/mcp.ts (skim for structure — it is large)
+- src/components/mcp/mcp-config-tabs.tsx
+- src/app/settings/page.tsx (if exists)
+
+PROJECT CONTEXT:
+- Next.js 16 App Router, React 19, TypeScript, PostgreSQL/Prisma ORM
+- NextAuth.js 5, GitHub-only auth, org-enforced (solution8-com org)
+- Existing MCP server at src/pages/api/mcp.ts (~1633 lines)
+- Existing models: User, Prompt, Comment, etc.
+- Existing flat Collection model (userId+promptId bookmarks) — spec §2.0 documents the rename prereq
+
+UPSTREAM DELTA CONTEXT (868 commits behind upstream prompts.chat/main):
+1. Existing Collection table = flat bookmarks (userId+promptId) — spec already has §2.0 rename prereq
+2. Fork missing: src/lib/skill-files.ts, src/app/.well-known/skills/ routes — Phase 1 INTERNAL download depends on skill-files.ts
+3. Fork MCP has diverged from upstream (fork: env-driven branding + session middleware exemption; upstream: rate limiters + skill file tools) — needs 3-way merge before Phase 1 MCP tools added
+4. Fork-only PromptType values: HACK, GUIDE — must survive any rebase
+
+REVIEW OBJECTIVES:
+1. Spec correctness — are the Prisma models, enums, route contracts, and MCP tool signatures internally consistent?
+2. Completeness — are there gaps a developer would hit mid-implementation that aren't addressed?
+3. Security — any issues with the auth model, SSRF protection, USER_PRIVATE 404 enforcement, or rate limit design?
+4. Feasibility — any proposed behavior that conflicts with Next.js App Router constraints, Prisma capabilities, or NextAuth session model?
+5. Acceptance criteria — are the 15 AC items testable and sufficient to declare Phase 1 done?
+6. Backlog — are the 6 backlog items (including 3 new BLOCKING prereqs) correctly scoped?
+7. Any missing edge cases or attack vectors not covered by §7?
+
+Output a structured review with severity tags: BLOCKER / HIGH / MEDIUM / LOW / NITPICK.
+Be direct. Flag real issues only — no praise, no padding." &lt;/dev/null 2&gt;/dev/null" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+use /superpowers:test-driven-development in a subagent to address `` B1 — Middleware will 401 all /api/collections/ before route code runs
+  marketplace.json needs unauthenticated access but middleware blocks every /api/collections path. Same fix as /api/mcp exemption — add path pattern to middleware allowlist.
+
+  B2 — assertPublisher gates on username === "le-dawg" — unsafe
+  Usernames are mutable (profile-form.tsx:164). A rename bypasses the gate. Must gate on user.id (the cuid) or user.role === ADMIN. Also contradictory: spec says "le-dawg only"
+  but §8.3 e2e scenarios say "admin creates collection."
+
+  B3 — MCP items can't be represented in CollectionItem
+  CollectionItem links INTERNAL items to Prompt records. No MCP artifact type exists. update_collection_item input has no promptId. install_collection promises MCP config
+  injection but there's no command/args/env payload on the item to inject.
+
+  B4 — CollectionMember exists but no add/remove/list surface
+  ADMIN_PRIVATE access rules and ACs depend on invited members. Zero routes or MCP tools manage membership. Either add manage_collection_members MCP tool + route, or drop
+  invite-based access from Phase 1 and make ADMIN_PRIVATE = all role === ADMIN users only.
+``.
+
+run me me through /superpowers:writing-plans in main threead for `` H1 — Prisma rename scope undersized
+  3 files named in §2.0. Codex found db.collection also in: src/app/prompts/[id]/page.tsx:178, src/app/feed/page.tsx:49, src/__tests__/api/collection.test.ts.
+
+  H2 — Private install auth flow undefined
+  API key auth for non-public marketplace.json — fine. But how do Tier 1 clients auth the subsequent INTERNAL download requests? Spec says keys never embedded in marketplace.json.
+  Gap.
+
+  H3 — contentHash not stable
+  Skills editable via MCP after write. Hash computed once "on write" — stale immediately if skill edited. Multi-file skills: no definition of canonical byte order for zip hash.
+
+  H4 — "Org admins" undefined
+  Spec uses "org admins" throughout. App uses User.role === ADMIN (local DB). No GitHub org admin sync path. Needs clarification: role === ADMIN is what the code actually checks.
+
+  H5 — Username-namespaced URLs unstable
+  /api/collections/[username]/[slug]/marketplace.json — username rename breaks all registered marketplace URLs. Need either: freeze usernames on collection create, or serve by
+  userId with redirect.
+``
+
+stroe all mediums found in last msg in temporary backlog via CLI tool, use a subagent for this .
+
+---
+
+<task-notification>
+<task-id>adf38d25b1aa7eefc</task-id>
+<tool-use-id>toolu_01MR64r6xhXstbzQxGRz2PtD</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-thedawgctor-Desktop--dawg-workfolder-AIRtools-s8promptbar-S8-Utility-Promptschat/d9d0ccd2-39fe-4331-9431-7e206a4ede6b/tasks/adf38d25b1aa7eefc.output</output-file>
+<status>completed</status>
+<summary>Agent "TDD fix for B1-B4 blockers" completed</summary>
+<result>5/5 tests pass. EXIT:0. All work is complete and verified.
+
+---
+
+## Summary
+
+### B1 — Middleware 401 on /api/collections/
+
+**TDD cycle completed.**
+
+- **RED:** Wrote 5 tests in `/src/__tests__/middleware.test.ts`. 3 failed with `expected 401 to be 200` (non-extension `/api/collections` paths blocked by missing session). 2 passed immediately (marketplace.json already exempt via file-extension bypass; /api/prompts still correctly blocked).
+- **Fix:** `/src/middleware.ts` line 7 — added `"/api/collections"` to `PUBLIC_PATHS` array, mirroring the existing `/api/mcp` exemption.
+- **GREEN:** All 5 tests pass. The `isPublicPath()` prefix-match function means `/api/collections/alice/foo/items` etc. are all exempted; route handlers now own auth enforcement.
+- **Lint:** `src/__tests__/middleware.test.ts` and `src/middleware.ts` both lint clean (EXIT:0).
+
+### B2 — assertPublisher uses mutable username
+
+**Spec-only fix.** No `assertPublisher` implementation exists in `src/`. The only `le-dawg` references in code are in `src/__tests__/lib/admin.test.ts` (S8_ADMINS env-migration tests, unrelated to publisher gate).
+
+Changed 4 locations in the spec:
+- Line 205 (§3.1): `username === "le-dawg"` → `user.role === "ADMIN"`
+- Line 264 (§4.1 create_collection): `rejects unless authenticated user is le-dawg` → `rejects unless authenticated user has role=ADMIN`
+- Line 408 (§7.1): `// Phase 1: username === "le-dawg"` → `// Phase 1: user.role === "ADMIN"`
+- Line 512 (§8.5): `non-le-dawg rejected Phase 1` → `non-admin (role != ADMIN) rejected Phase 1`
+
+The "le-dawg can unpublish" mentions (access matrix, §9 AC, error message) are a separate capability and were intentionally left unchanged.
+
+### B3 — MCP items have no data model
+
+**Spec-only fix.** Added `mcpConfig Json?` to `CollectionItem` model in §2.1 (after `type ItemType`, with comment "required when type = MCP"), and updated `update_collection_item` input in §4.1 to include `mcpConfig?: { command: string, args?: string[], env?: Record&lt;string, string&gt; }`.
+
+### B4 — CollectionMember has no management surface
+
+**Spec-only fix.** 8 changes across the spec:
+1. Removed `members CollectionMember[]` from `Collection` model (§2.1)
+2. Removed the entire `CollectionMember` model block (§2.1)
+3. Updated `ADMIN_PRIVATE` enum comment (§2.2): "org admins (role=ADMIN) + owner; hidden from public"
+4. Removed "Invited member" column from access matrix (§3.2)
+5. Removed `CollectionMember EXISTS` clause from `ADMIN_PRIVATE` query (§7.2)
+6. Updated §8.1 testing matrix: "visible to admins (role=ADMIN) + owner only"
+7. Updated §9 AC: "ADMIN_PRIVATE collections visible to org admins (role=ADMIN) + owner only"
+8. Added two Phase 2 backlog entries (CollectionMember model + `manage_collection_members` MCP tool stub)
+
+**Files changed:**
+- `/Users/thedawgctor/Desktop/(dawg-workfolder)AIRtools/s8promptbar/S8-Utility-Promptschat/src/middleware.ts` — line 7, one word added
+- `/Users/thedawgctor/Desktop/(dawg-workfolder)AIRtools/s8promptbar/S8-Utility-Promptschat/src/__tests__/middleware.test.ts` — new file, 5 tests
+- `/Users/thedawgctor/Desktop/(dawg-workfolder)AIRtools/s8promptbar/S8-Utility-Promptschat/docs/superpowers/specs/2026-06-02-promptbar-phase1-collections-marketplace-design.md` — 12 targeted edits for B2/B3/B4
+
+&lt;!-- buddy: *narrows eyes* watching these spec edits like a hawk — CollectionMember removal without the model reference cleanup would have been a massacre --&gt;</result>
+<usage><subagent_tokens>80445</subagent_tokens><tool_uses>49</tool_uses><duration_ms>562227</duration_ms></usage>
+</task-notification>
+
+---
+
+inline execution for the H1-H5 plan
