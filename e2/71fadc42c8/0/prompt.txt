@@ -444,3 +444,8 @@ The "le-dawg can unpublish" mentions (access matrix, §9 AC, error message) are 
 ---
 
 inline execution for the H1-H5 plan
+
+---
+
+1. create feature branch of course, and generate a rollback migration please. 
+2. esm is ecmascript or what explain
